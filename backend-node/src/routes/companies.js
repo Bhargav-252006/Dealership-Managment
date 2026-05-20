@@ -1,0 +1,54 @@
+const express = require('express');
+const router = express.Router();
+const prisma = require('../utils/db');
+const authenticateToken = require('../middleware/auth');
+
+router.get('/', authenticateToken, async (req, res) => {
+  const companies = await prisma.company.findMany({
+    include: {
+      products: { orderBy: { product_name: 'asc' } }
+    },
+    orderBy: { name: 'asc' }
+  });
+
+  res.json(companies.map(co => ({
+    id: co.id,
+    name: co.name,
+    category: co.category,
+    products: co.products.map(p => ({
+      id: p.id,
+      company: p.company_id,
+      company_name: co.name,
+      product_name: p.product_name,
+      unit_size: p.unit_size,
+      units_per_box: p.units_per_box,
+      default_price: Number(p.default_price)
+    }))
+  })));
+});
+
+router.post('/', authenticateToken, async (req, res) => {
+  const { name, category } = req.body;
+  const co = await prisma.company.create({ data: { name, category } });
+  res.status(201).json(co);
+});
+
+router.patch('/:id', authenticateToken, async (req, res) => {
+  const { name, category } = req.body;
+  const co = await prisma.company.update({
+    where: { id: Number(req.params.id) },
+    data: { name, category }
+  });
+  res.json(co);
+});
+
+router.delete('/:id', authenticateToken, async (req, res) => {
+  try {
+    await prisma.company.delete({ where: { id: Number(req.params.id) } });
+    res.status(204).send();
+  } catch {
+    res.status(400).json({ error: 'Cannot delete company with existing orders' });
+  }
+});
+
+module.exports = router;
