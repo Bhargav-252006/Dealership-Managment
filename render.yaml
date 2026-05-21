@@ -8,7 +8,7 @@ services:
     startCommand: node src/index.js
     envVars:
       - key: NODE_VERSION
-        value: 18.17.0
+        value: 20
       - key: DATABASE_URL
         sync: false
       - key: DIRECT_URL
@@ -24,7 +24,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: NODE_VERSION
-        value: 18.17.0
+        value: 20
       - key: VITE_API_URL
         fromService:
           type: web
