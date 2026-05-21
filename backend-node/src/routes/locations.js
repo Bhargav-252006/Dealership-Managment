@@ -19,15 +19,16 @@ router.get('/', authenticateToken, async (req, res) => {
   res.json(locations.map(loc => ({
     id: loc.id,
     name: loc.name,
+    visit_day: loc.visit_day,
     shop_count: loc._count.shops
   })));
 });
 
 router.post('/', authenticateToken, async (req, res) => {
   const dealerId = await getDealerId(req.user.userId);
-  const { name } = req.body;
+  const { name, visit_day } = req.body;
   const loc = await prisma.location.create({
-    data: { name, dealer_id: dealerId }
+    data: { name, visit_day, dealer_id: dealerId }
   });
   res.status(201).json(loc);
 });

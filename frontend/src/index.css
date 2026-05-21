@@ -562,6 +562,15 @@ select option { background: var(--bg-secondary); color: var(--text-primary); }
   padding: 12px;
 }
 
+.order-item-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 80px 90px auto;
+  gap: 10px;
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--glass-border);
+  margin-bottom: 10px;
+}
+
 /* ── Empty State ── */
 .empty-state {
   text-align: center;
@@ -683,6 +692,12 @@ select option { background: var(--bg-secondary); color: var(--text-primary); }
   
   .filters-bar { flex-direction: column; align-items: stretch; }
   .filters-bar select, .filters-bar button { max-width: 100%; }
+  
+  .order-item-header { display: none; }
+  
+  .modal { padding: 20px; }
+  .modal-overlay { padding: 16px; }
+  .modal form > div[style*="flex"] { flex-wrap: wrap; }
 
   /* ── Responsive Tables ── */
   .table-wrapper { overflow-x: hidden; }

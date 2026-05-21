@@ -49,7 +49,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             <NavLink
               key={link.to}
               to={link.to}
-              end={link.to === '/'}
+              end
               className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
               onClick={() => setIsOpen(false)} // Close sidebar on navigate
             >

@@ -147,21 +147,14 @@ export default function CreateOrder() {
           </div>
 
           {/* Header */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: '1fr 1fr 90px 110px 40px',
-            gap: 10, padding: '0 0 8px', borderBottom: '1px solid var(--glass-border)',
-            marginBottom: 10
-          }}>
+          <div className="order-item-header">
             {['Company', 'Product / Size', 'Boxes', 'Rate (₹)', ''].map(h => (
               <div key={h} style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</div>
             ))}
           </div>
 
           {items.map((item, idx) => (
-            <div key={idx} style={{
-              display: 'grid', gridTemplateColumns: '1fr 1fr 90px 110px 40px',
-              gap: 10, marginBottom: 10, alignItems: 'center'
-            }}>
+            <div key={idx} className="order-item-row">
               <select
                 value={item.company}
                 onChange={e => updateItem(idx, 'company', e.target.value)}

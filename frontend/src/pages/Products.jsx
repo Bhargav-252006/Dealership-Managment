@@ -89,11 +89,12 @@ export default function Products() {
 
   const catColor = (cat) => ({
     Oil: {bg: 'var(--yellow-bg)', color: 'var(--yellow)'},
+    Atta: {bg: 'rgba(234, 179, 8, 0.15)', color: '#eab308'},
     Soap: {bg: 'var(--blue-bg)', color: 'var(--blue)'},
     Rice: {bg: 'var(--green-bg)', color: 'var(--green)'},
   }[cat] || {bg: 'var(--bg-card)', color: 'var(--text-secondary)'});
 
-  const CAT_ICON = {Oil: '🛢️', Soap: '🧼', Rice: '🌾'};
+  const CAT_ICON = {Oil: '🛢️', Soap: '🧼', Rice: '🌾', Atta: '🌾'};
 
   const renderCard = (co) => {
     const {bg, color} = catColor(co.category);
@@ -186,15 +187,26 @@ export default function Products() {
             boxShadow: activeTab === 'lamp' ? '0 4px 12px var(--accent-glow)' : 'none',
             transition: 'all 0.3s ease', fontSize: 14
           }}>
-          🪔 Dipam &amp; Palm Oil
+          🪔 Lamp / Palm Oil
+        </button>
+        <button
+          onClick={() => setActiveTab('atta')}
+          style={{
+            padding: '10px 24px', borderRadius: 24, border: 'none', cursor: 'pointer',
+            background: activeTab === 'atta' ? 'var(--accent)' : 'transparent',
+            color: activeTab === 'atta' ? '#fff' : 'var(--text-secondary)',
+            fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8,
+            boxShadow: activeTab === 'atta' ? '0 4px 12px var(--accent-glow)' : 'none',
+            transition: 'all 0.3s ease', fontSize: 14
+          }}>
+          🌾 Attas
         </button>
       </div>
 
       <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 32}}>
-        {activeTab === 'normal'
-          ? companies.filter(co => !['Deepam Oil', 'Palm Oil'].includes(co.name)).map(co => renderCard(co))
-          : companies.filter(co => ['Deepam Oil', 'Palm Oil'].includes(co.name)).map(co => renderCard(co))
-        }
+        {activeTab === 'normal' && companies.filter(co => co.category !== 'Atta' && !['Deepam Oil', 'Palm Oil'].includes(co.name)).map(co => renderCard(co))}
+        {activeTab === 'lamp' && companies.filter(co => ['Deepam Oil', 'Palm Oil'].includes(co.name)).map(co => renderCard(co))}
+        {activeTab === 'atta' && companies.filter(co => co.category === 'Atta' || ['Shubam Gold', 'Shreshta'].includes(co.name)).map(co => renderCard(co))}
       </div>
 
       {/* Add Company Modal */}
@@ -215,6 +227,7 @@ export default function Products() {
                 <label>Category</label>
                 <select value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
                   <option value="Oil">🛢️ Oil</option>
+                  <option value="Atta">🌾 Atta</option>
                   <option value="Soap">🧼 Soap</option>
                   <option value="Rice">🌾 Rice</option>
                   <option value="Grocery">🛒 Grocery</option>

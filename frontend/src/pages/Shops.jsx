@@ -8,7 +8,12 @@ export default function Shops() {
   const [selectedLoc, setSelectedLoc] = useState('');
   const [showLocModal, setShowLocModal] = useState(false);
   const [showShopModal, setShowShopModal] = useState(false);
-  const [locForm, setLocForm] = useState({ name: '' });
+  
+  const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const [activeDay, setActiveDay] = useState(DAYS[new Date().getDay()] === 'Sunday' ? 'Monday' : DAYS[new Date().getDay()]);
+  const [newLocName, setNewLocName] = useState('');
+  const [newLocDay, setNewLocDay] = useState('Monday');
+  
   const [shopForm, setShopForm] = useState({ shop_name: '', owner_name: '', phone: '', address: '', location: '' });
 
   // Edit shop
@@ -32,14 +37,15 @@ export default function Shops() {
     fetchShops(id);
   };
 
-  const saveLocation = async (e) => {
+  const addLocation = async (e) => {
     e.preventDefault();
+    if (!newLocName.trim()) return;
     try {
-      await API.post('/locations/', locForm);
-      toast.success('Location added!');
+      await API.post('/locations/', { name: newLocName, visit_day: newLocDay });
+      setNewLocName('');
       setShowLocModal(false);
-      setLocForm({ name: '' });
       fetchLocations();
+      toast.success('Location added');
     } catch { toast.error('Failed to add location'); }
   };
 
@@ -107,31 +113,48 @@ export default function Shops() {
 
       {/* Locations Section */}
       <div className="card" style={{ marginBottom: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700 }}>🗺️ Locations ({locations.length})</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700 }}>🗺️ Locations</h3>
           <button className="btn btn-primary btn-sm" onClick={() => setShowLocModal(true)}>+ Add Location</button>
         </div>
 
-        {locations.length === 0 ? (
+        {/* Weekday Filter */}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid var(--glass-border)' }}>
+          {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'All'].map(day => (
+            <button
+              key={day}
+              className={`btn btn-sm ${activeDay === day ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => {
+                setActiveDay(day);
+                filterByLocation('');
+              }}
+              style={{ borderRadius: 20, padding: '6px 16px', fontSize: 13 }}
+            >
+              {day}
+            </button>
+          ))}
+        </div>
+
+        {locations.filter(l => activeDay === 'All' || l.visit_day === activeDay).length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">🗺️</div>
-            <h3>No locations yet</h3>
-            <p>Add your first delivery location</p>
+            <h3>No locations for {activeDay}</h3>
+            <p>Add your delivery locations or change the day filter</p>
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button
               className={`btn btn-sm ${selectedLoc === '' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => filterByLocation('')}
-            >All Areas</button>
-            {locations.map(loc => (
+            >All {activeDay !== 'All' ? activeDay : ''} Areas</button>
+            {locations.filter(l => activeDay === 'All' || l.visit_day === activeDay).map(loc => (
               <div key={loc.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <button
                   className={`btn btn-sm ${selectedLoc == loc.id ? 'btn-primary' : 'btn-secondary'}`}
                   onClick={() => filterByLocation(loc.id)}
                 >
                   📍 {loc.name}
-                  <span style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 10, padding: '1px 7px', fontSize: 11 }}>
+                  <span style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 10, padding: '1px 7px', fontSize: 11, marginLeft: 6 }}>
                     {loc.shop_count}
                   </span>
                 </button>
@@ -216,11 +239,18 @@ export default function Shops() {
               <span className="modal-title">📍 Add Location</span>
               <button className="modal-close" onClick={() => setShowLocModal(false)}>✕</button>
             </div>
-            <form onSubmit={saveLocation}>
+            <form onSubmit={addLocation}>
               <div className="form-group">
                 <label>Location Name</label>
-                <input placeholder="e.g. Vijayawada" value={locForm.name}
-                  onChange={e => setLocForm({ name: e.target.value })} required autoFocus />
+                <input placeholder="e.g. Shamirpet" value={newLocName} onChange={e => setNewLocName(e.target.value)} required autoFocus />
+              </div>
+              <div className="form-group">
+                <label>Visit Day</label>
+                <select value={newLocDay} onChange={e => setNewLocDay(e.target.value)}>
+                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
               </div>
               <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowLocModal(false)}>Cancel</button>
