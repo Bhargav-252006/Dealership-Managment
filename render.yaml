@@ -9,8 +9,9 @@ services:
       - key: NODE_VERSION
         value: 18.17.0
       - key: DATABASE_URL
-        sync: false # Requires manual setup in Render Dashboard
-      - key: JWT_SECRET
+        sync: false
+      - key: DIRECT_URL
+        sync: false
         generateValue: true
 
   - type: web

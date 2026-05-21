@@ -10,6 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // Modular Routes
+app.get('/api/ping', (req, res) => res.status(200).send('pong'));
 app.use('/api', require('./routes/auth'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/locations', require('./routes/locations'));
