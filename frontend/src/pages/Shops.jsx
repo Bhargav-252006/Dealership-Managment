@@ -24,17 +24,34 @@ export default function Shops() {
   const [showShopOrdersModal, setShowShopOrdersModal] = useState(false);
   const [shopOrders, setShopOrders] = useState({ shop: null, orders: [] });
 
+  const [allShops, setAllShops] = useState([]);
+
   const fetchLocations = () => API.get('/locations/').then(({ data }) => setLocations(data));
   const fetchShops = (locId = '') => {
-    const url = locId ? `/shops/?location=${locId}` : '/shops/';
-    API.get(url).then(({ data }) => setShops(data));
+    if (allShops.length > 0 && !locId) {
+      // Already loaded, just reset filter
+      setShops(allShops);
+      return;
+    }
+    const url = '/shops/';
+    API.get(url).then(({ data }) => {
+      setAllShops(data);
+      setShops(locId ? data.filter(s => s.location_id == locId) : data);
+    });
   };
 
   useEffect(() => { fetchLocations(); fetchShops(); }, []);
 
   const filterByLocation = (id) => {
     setSelectedLoc(id);
-    fetchShops(id);
+    // Filter client-side — no extra API call needed!
+    if (id) {
+      setShops(allShops.filter(s => s.location_id == id));
+    } else {
+      // Filter by active day
+      const activeLocs = locations.filter(l => activeDay === 'All' || l.visit_day === activeDay).map(l => l.id);
+      setShops(allShops.filter(s => activeLocs.includes(s.location_id)));
+    }
   };
 
   const addLocation = async (e) => {
@@ -56,6 +73,7 @@ export default function Shops() {
       toast.success('Shop added!');
       setShowShopModal(false);
       setShopForm({ shop_name: '', owner_name: '', phone: '', address: '', location: '' });
+      setAllShops([]); // invalidate cache
       fetchShops(selectedLoc);
     } catch { toast.error('Failed to add shop'); }
   };
@@ -66,6 +84,7 @@ export default function Shops() {
       await API.patch(`/shops/${editShopData.id}/`, editShopData);
       toast.success('Shop updated!');
       setEditShopModal(false);
+      setAllShops([]); // invalidate cache
       fetchShops(selectedLoc);
     } catch { toast.error('Failed to update shop'); }
   };
