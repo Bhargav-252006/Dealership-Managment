@@ -2,6 +2,7 @@ services:
   - type: web
     name: dealer-backend
     env: node
+    plan: free
     rootDir: backend-node
     buildCommand: npm install && npx prisma generate
     startCommand: node src/index.js
@@ -12,6 +13,7 @@ services:
         sync: false
       - key: DIRECT_URL
         sync: false
+      - key: JWT_SECRET
         generateValue: true
 
   - type: web
