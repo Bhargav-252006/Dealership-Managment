@@ -10,7 +10,14 @@ app.use(cors());
 app.use(express.json());
 
 // Modular Routes
-app.get('/api/ping', (req, res) => res.status(200).send('pong'));
+app.get('/api/ping', async (req, res) => {
+  try {
+    await require('./utils/db').$queryRaw`SELECT 1`;
+    res.status(200).send('pong');
+  } catch (error) {
+    res.status(500).send('db error');
+  }
+});
 app.use('/api', require('./routes/auth'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/locations', require('./routes/locations'));
