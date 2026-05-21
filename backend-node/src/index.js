@@ -10,6 +10,8 @@ app.use(cors());
 app.use(express.json());
 
 // Modular Routes
+app.get('/', (req, res) => res.send('Dealership API is running! 🚀'));
+
 app.get('/api/ping', async (req, res) => {
   try {
     await require('./utils/db').$queryRaw`SELECT 1`;
