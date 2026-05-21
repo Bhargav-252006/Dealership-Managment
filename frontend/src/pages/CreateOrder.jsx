@@ -8,6 +8,10 @@ export default function CreateOrder() {
   const [locations, setLocations] = useState([]);
   const [shops, setShops] = useState([]);
   const [companies, setCompanies] = useState([]);
+  
+  const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const [activeDay, setActiveDay] = useState(DAYS[new Date().getDay()] === 'Sunday' ? 'Monday' : DAYS[new Date().getDay()]);
+  
   const [selectedLoc, setSelectedLoc] = useState('');
   const [selectedShop, setSelectedShop] = useState('');
   const [notes, setNotes] = useState('');
@@ -120,13 +124,34 @@ export default function CreateOrder() {
       <form onSubmit={handleSubmit}>
         {/* Shop Selection */}
         <div className="card" style={{ marginBottom: 20 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>🏪 Select Shop</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700 }}>🏪 Select Shop</h3>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>Day:</label>
+              <select 
+                value={activeDay} 
+                onChange={e => {
+                  setActiveDay(e.target.value);
+                  onLocationChange('');
+                }}
+                style={{ padding: '4px 8px', fontSize: 13, borderRadius: 12, border: '1px solid var(--glass-border)', background: 'var(--bg-secondary)' }}
+              >
+                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'All'].map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
           <div className="form-row">
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label>Location</label>
               <select id="location-select" value={selectedLoc} onChange={e => onLocationChange(e.target.value)}>
                 <option value="">— Select Location —</option>
-                {locations.map(l => <option key={l.id} value={l.id}>📍 {l.name}</option>)}
+                {locations.filter(l => activeDay === 'All' || l.visit_day === activeDay).map(l => (
+                  <option key={l.id} value={l.id}>📍 {l.name}</option>
+                ))}
               </select>
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
