@@ -10,37 +10,62 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 // Auth
 router.post('/token/', async (req, res) => {
   const { username, password } = req.body;
-  const user = await prisma.user.findUnique({ where: { username } });
-  
-  if (!user) return res.status(401).json({ detail: 'No active account found with the given credentials' });
-  
-  let validPassword = false;
-  if (username === 'surya' && password === 'surya@123') {
-    validPassword = true;
-  } else {
-    validPassword = await bcrypt.compare(password, user.password);
+  console.log(`[LOGIN] Attempt for username: "${username}"`);
+
+  if (!username || !password) {
+    console.log('[LOGIN] Missing username or password');
+    return res.status(400).json({ detail: 'Username and password are required' });
   }
 
-  if (!validPassword) return res.status(401).json({ detail: 'No active account found with the given credentials' });
+  try {
+    const user = await prisma.user.findUnique({ where: { username } });
+    if (!user) {
+      console.log(`[LOGIN] No user found for username: "${username}"`);
+      return res.status(401).json({ detail: 'No active account found with the given credentials' });
+    }
+    console.log(`[LOGIN] Found user ID: ${user.id}`);
 
-  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '12h' });
-  res.json({ access: token, refresh: token });
+    let validPassword = false;
+    if (username === 'surya' && password === 'surya@123') {
+      console.log('[LOGIN] Using hardcoded surya credentials');
+      validPassword = true;
+    } else {
+      validPassword = await bcrypt.compare(password, user.password);
+      console.log(`[LOGIN] Password check result: ${validPassword}`);
+    }
+
+    if (!validPassword) {
+      console.log('[LOGIN] Invalid password');
+      return res.status(401).json({ detail: 'No active account found with the given credentials' });
+    }
+
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '12h' });
+    console.log(`[LOGIN] Success for user: "${username}"`);
+    res.json({ access: token, refresh: token });
+  } catch (err) {
+    console.error('[LOGIN] DB Error:', err.message);
+    res.status(500).json({ detail: 'Internal server error' });
+  }
 });
 
 router.post('/register/', async (req, res) => {
   const { username, password, email, first_name, last_name, phone, business_type } = req.body;
-  
+  console.log(`[REGISTER] Attempt for username: "${username}"`);
+
   if (!username || !password) {
+    console.log('[REGISTER] Missing username or password');
     return res.status(400).json({ error: 'Username and password are required' });
   }
 
   try {
     const existingUser = await prisma.user.findUnique({ where: { username } });
     if (existingUser) {
+      console.log(`[REGISTER] Username already taken: "${username}"`);
       return res.status(400).json({ error: 'Username already taken' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('[REGISTER] Password hashed, creating user in DB...');
 
     const newUser = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
@@ -52,6 +77,7 @@ router.post('/register/', async (req, res) => {
           last_name: last_name || null
         }
       });
+      console.log(`[REGISTER] User created with ID: ${user.id}`);
 
       await tx.dealer.create({
         data: {
@@ -60,13 +86,15 @@ router.post('/register/', async (req, res) => {
           business_type: business_type || 'Oil'
         }
       });
+      console.log(`[REGISTER] Dealer created for user ID: ${user.id}`);
 
       return user;
     });
 
+    console.log(`[REGISTER] Success for username: "${username}" ID: ${newUser.id}`);
     res.status(201).json({ message: 'Registration successful', userId: newUser.id });
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('[REGISTER] Error:', error.message);
     res.status(500).json({ error: 'Internal server error during registration' });
   }
 });

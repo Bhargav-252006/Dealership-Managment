@@ -30,5 +30,8 @@ app.use('/api/orders', require('./routes/orders'));
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
-  console.log(`Node Server running on port ${PORT}`);
+  console.log(`[SERVER] Node Server running on port ${PORT}`);
+  console.log(`[SERVER] DATABASE_URL set: ${!!process.env.DATABASE_URL}`);
+  console.log(`[SERVER] DIRECT_URL set: ${!!process.env.DIRECT_URL}`);
+  console.log(`[SERVER] JWT_SECRET set: ${!!process.env.JWT_SECRET}`);
 });
