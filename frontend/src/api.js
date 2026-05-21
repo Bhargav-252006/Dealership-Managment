@@ -1,8 +1,13 @@
 import axios from 'axios';
 
 let baseUrl = import.meta.env.VITE_API_URL || '/api';
-if (baseUrl !== '/api' && !baseUrl.startsWith('http')) {
-  baseUrl = `https://${baseUrl}`;
+if (baseUrl !== '/api') {
+  if (!baseUrl.startsWith('http')) {
+    baseUrl = `https://${baseUrl}`;
+  }
+  if (!baseUrl.endsWith('/api')) {
+    baseUrl = `${baseUrl}/api`;
+  }
 }
 
 const API = axios.create({
@@ -23,7 +28,7 @@ API.interceptors.response.use(
       original._retry = true;
       try {
         const refresh = localStorage.getItem('refresh');
-        const {data} = await axios.post('/api/token/refresh/', {refresh});
+        const {data} = await axios.post(`${baseUrl}/token/refresh/`, {refresh});
         localStorage.setItem('access', data.access);
         original.headers.Authorization = `Bearer ${data.access}`;
         return API(original);
