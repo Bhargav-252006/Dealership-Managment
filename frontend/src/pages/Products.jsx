@@ -159,8 +159,9 @@ export default function Products() {
   };
 
   return (
-    <div className="fade-in">
-      <div className="page-header">
+    <>
+      <div className="fade-in">
+        <div className="page-header">
         <h2>🏷️ Products &amp; Companies</h2>
         <p>Manage your product catalog — brands and their variants.</p>
       </div>
@@ -190,6 +191,7 @@ export default function Products() {
 
       <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 32}}>
         {companies.filter(co => co.category === activeTab).map(co => renderCard(co))}
+      </div>
       </div>
 
       {/* Add Company Modal */}
@@ -356,6 +358,6 @@ export default function Products() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

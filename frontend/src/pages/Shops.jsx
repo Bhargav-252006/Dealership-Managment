@@ -134,11 +134,12 @@ export default function Shops() {
   };
 
   return (
-    <div className="fade-in">
-      <div className="page-header">
-        <h2>📍 Locations &amp; Shops</h2>
-        <p>Manage your delivery areas and shop network.</p>
-      </div>
+    <>
+      <div className="fade-in">
+        <div className="page-header">
+          <h2>📍 Locations &amp; Shops</h2>
+          <p>Manage your delivery areas and shop network.</p>
+        </div>
 
       {/* Locations Section */}
       <div className="card" style={{ marginBottom: 24 }}>
@@ -258,6 +259,7 @@ export default function Shops() {
             ))}
           </div>
         )}
+      </div>
       </div>
 
       {/* Add Location Modal */}
@@ -442,6 +444,6 @@ export default function Shops() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
