@@ -64,6 +64,10 @@ export default function Login() {
         <div style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'var(--text-secondary)' }}>
           Don't have an account? <Link to="/signup" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>Sign Up</Link>
         </div>
+        
+        <div style={{ textAlign: 'center', marginTop: 16, fontSize: 12, color: 'var(--text-tertiary)' }}>
+          Having trouble? Contact support at <a href="mailto:23211a67a7@gmail.com" style={{ color: 'inherit', textDecoration: 'underline' }}>23211a67a7@gmail.com</a>
+        </div>
       </div>
     </div>
   );
