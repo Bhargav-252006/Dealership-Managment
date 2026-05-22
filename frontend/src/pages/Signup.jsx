@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import API from '../api';
 import toast from 'react-hot-toast';
 
 export default function Signup() {
@@ -30,7 +30,7 @@ export default function Signup() {
     
     setLoading(true);
     try {
-      await axios.post('/api/register/', formData);
+      await API.post('/register/', formData);
       toast.success('Registration successful! Please log in.');
       navigate('/login');
     } catch (err) {
