@@ -43,7 +43,7 @@ export default function SubscriptionExpired() {
         key: 'rzp_test_dummy_key_123', // Dummy key for testing (matches backend)
         amount: order.amount,
         currency: order.currency,
-        name: 'DealerConnect',
+        name: 'TradeHub',
         description: 'Monthly Subscription Renewal',
         order_id: order.id,
         handler: async function (response) {
@@ -114,7 +114,7 @@ export default function SubscriptionExpired() {
           Subscription Expired
         </h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: 32, lineHeight: 1.6 }}>
-          Your monthly subscription to DealerConnect has expired or is inactive. 
+          Your monthly subscription to TradeHub has expired or is inactive. 
           Please renew your subscription to continue managing your shops and placing orders.
         </p>
 
@@ -128,7 +128,7 @@ export default function SubscriptionExpired() {
         </button>
 
         <div style={{ marginTop: 32, paddingTop: 32, borderTop: '1px solid var(--glass-border)' }}>
-          <h4 style={{ fontSize: 14, color: 'var(--text-primary)', marginBottom: 8 }}>Want to stop using DealerConnect?</h4>
+          <h4 style={{ fontSize: 14, color: 'var(--text-primary)', marginBottom: 8 }}>Want to stop using TradeHub?</h4>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
             You can download all your historical order data as a CSV file below.
           </p>

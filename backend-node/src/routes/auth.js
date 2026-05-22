@@ -126,7 +126,8 @@ router.get('/me/', authenticateToken, async (req, res) => {
       first_name: dealer.user.first_name,
       last_name: dealer.user.last_name,
       email: dealer.user.email,
-      is_active: dealer.user.is_active
+      is_active: dealer.user.is_active,
+      is_admin: dealer.user.is_admin
     }
   });
 });
