@@ -5,10 +5,13 @@ const crypto = require('crypto');
 const prisma = require('../utils/db');
 const authenticateToken = require('../middleware/auth');
 
+const KEY_ID = process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy_key_123';
+const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'dummy_secret_abc123';
+
 // Using dummy sandbox keys by default so it works without real keys
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy_key_123',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret_abc123'
+  key_id: KEY_ID,
+  key_secret: KEY_SECRET
 });
 
 const SUBSCRIPTION_FEE = 499; // ₹499
@@ -23,7 +26,7 @@ router.post('/create-order', authenticateToken, async (req, res) => {
     
     // If using real keys, this connects to Razorpay. With dummy keys it will fail.
     // For local testing without a real key, we mock the response.
-    if (razorpay.key_id.includes('dummy')) {
+    if (KEY_ID.includes('dummy')) {
       return res.json({
         id: `order_dummy_${Date.now()}`,
         currency: 'INR',
@@ -44,14 +47,12 @@ router.post('/verify', authenticateToken, async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
     
     // Verify signature
-    const secret = razorpay.key_secret;
-    const body = razorpay_order_id + '|' + razorpay_payment_id;
     const expectedSignature = crypto
-      .createHmac('sha256', secret)
+      .createHmac('sha256', KEY_SECRET)
       .update(body.toString())
       .digest('hex');
       
-    const isAuthentic = expectedSignature === razorpay_signature || razorpay.key_id.includes('dummy');
+    const isAuthentic = expectedSignature === razorpay_signature || KEY_ID.includes('dummy');
 
     if (isAuthentic) {
       // Calculate end of current month
