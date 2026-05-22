@@ -6,7 +6,22 @@ require('dotenv').config();
 BigInt.prototype.toJSON = function () { return Number(this); };
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl etc)
+    if (!origin) return callback(null, true);
+    // Allow all vercel.app domains and localhost
+    if (
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.onrender.com') ||
+      origin.includes('localhost')
+    ) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 app.use(express.json());
 
 // Modular Routes

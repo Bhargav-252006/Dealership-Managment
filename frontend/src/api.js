@@ -2,6 +2,8 @@ import axios from 'axios';
 
 let baseUrl = import.meta.env.VITE_API_URL || '/api';
 if (baseUrl !== '/api') {
+  // Remove trailing slash if present
+  baseUrl = baseUrl.replace(/\/+$/, '');
   if (!baseUrl.startsWith('http')) {
     baseUrl = `https://${baseUrl}`;
   }
