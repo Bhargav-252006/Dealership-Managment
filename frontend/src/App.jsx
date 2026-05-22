@@ -37,6 +37,10 @@ function AppRoutes() {
     );
   }
 
+  if (!user.user?.is_active) {
+    return <SubscriptionExpired />;
+  }
+
   return (
     <div className="app-layout">
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
@@ -54,18 +58,14 @@ function AppRoutes() {
         </header>
 
         <main className="main-content" style={{ minHeight: 'auto' }}>
-          {!user.user?.is_active ? (
-            <SubscriptionExpired />
-          ) : (
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/shops" element={<Shops />} />
-              <Route path="/orders/create" element={<CreateOrder />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          )}
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/shops" element={<Shops />} />
+            <Route path="/orders/create" element={<CreateOrder />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </main>
       </div>
     </div>

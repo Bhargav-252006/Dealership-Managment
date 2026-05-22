@@ -25,6 +25,20 @@ export default function SubscriptionExpired() {
       // Create order on backend
       const { data: order } = await API.post('/subscriptions/create-order');
 
+      // If we are using dummy keys, Razorpay script will crash. Bypass it and verify directly.
+      if (order.id.includes('dummy')) {
+        toast.loading('Simulating Payment...', { id: 'verify' });
+        await new Promise(resolve => setTimeout(resolve, 1500)); // fake delay
+        await API.post('/subscriptions/verify', {
+          razorpay_order_id: order.id,
+          razorpay_payment_id: 'pay_dummy_123',
+          razorpay_signature: 'dummy_sig'
+        });
+        toast.success('Payment successful! Your account is active.', { id: 'verify' });
+        setTimeout(() => window.location.reload(), 1500);
+        return;
+      }
+
       const options = {
         key: 'rzp_test_dummy_key_123', // Dummy key for testing (matches backend)
         amount: order.amount,
