@@ -53,7 +53,7 @@ export default function Orders() {
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Expected Amount</div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--accent)' }}>₹{todayTotal.toFixed(2)}</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--accent)' }}>₹{todayTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
           </div>
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function Orders() {
                   </div>
                 </div>
                 <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--accent-light)', flexShrink: 0 }}>
-                  ₹{parseFloat(order.total_amount || 0).toFixed(2)}
+                  ₹{parseFloat(order.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <span style={{ color: 'var(--text-muted)', fontSize: 18, flexShrink: 0 }}>›</span>
               </div>
@@ -160,7 +160,7 @@ export default function Orders() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12, marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--glass-border)' }}>
               <span style={{ color: 'var(--text-secondary)' }}>Total:</span>
               <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--accent-light)' }}>
-                ₹{parseFloat(selected.total_amount || 0).toFixed(2)}
+                ₹{parseFloat(selected.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
 
