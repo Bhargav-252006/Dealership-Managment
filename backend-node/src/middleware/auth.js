@@ -12,9 +12,10 @@ const authenticateToken = (req, res, next) => {
     
     // User Activity Log
     const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] [USER ${user.userId}] accessed ${req.method} ${req.originalUrl}`);
+    const identifier = user.username ? user.username : `ID:${user.userId}`;
+    console.log(`[${timestamp}] [USER ${identifier}] accessed ${req.method} ${req.originalUrl}`);
     if (['POST', 'PATCH', 'PUT'].includes(req.method) && Object.keys(req.body).length > 0) {
-      console.log(`[USER ${user.userId}] BODY:`, req.body);
+      console.log(`[USER ${identifier}] BODY:`, req.body);
     }
     
     next();

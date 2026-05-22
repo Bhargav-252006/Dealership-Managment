@@ -3,8 +3,15 @@ const router = express.Router();
 const prisma = require('../utils/db');
 const authenticateToken = require('../middleware/auth');
 
+const getDealerId = async (userId) => {
+  const dealer = await prisma.dealer.findUnique({ where: { user_id: userId } });
+  return dealer?.id;
+};
+
 router.get('/', authenticateToken, async (req, res) => {
+  const dealerId = await getDealerId(req.user.userId);
   const companies = await prisma.company.findMany({
+    where: { dealer_id: dealerId },
     include: {
       products: { orderBy: { product_name: 'asc' } }
     },
@@ -28,12 +35,19 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 router.post('/', authenticateToken, async (req, res) => {
+  const dealerId = await getDealerId(req.user.userId);
   const { name, category } = req.body;
-  const co = await prisma.company.create({ data: { name, category } });
+  const co = await prisma.company.create({ data: { name, category, dealer_id: dealerId } });
   res.status(201).json(co);
 });
 
 router.patch('/:id', authenticateToken, async (req, res) => {
+  const dealerId = await getDealerId(req.user.userId);
+  const company = await prisma.company.findFirst({
+    where: { id: Number(req.params.id), dealer_id: dealerId }
+  });
+  if (!company) return res.status(403).json({ error: 'Unauthorized' });
+
   const { name, category } = req.body;
   const co = await prisma.company.update({
     where: { id: Number(req.params.id) },
@@ -43,6 +57,12 @@ router.patch('/:id', authenticateToken, async (req, res) => {
 });
 
 router.delete('/:id', authenticateToken, async (req, res) => {
+  const dealerId = await getDealerId(req.user.userId);
+  const company = await prisma.company.findFirst({
+    where: { id: Number(req.params.id), dealer_id: dealerId }
+  });
+  if (!company) return res.status(403).json({ error: 'Unauthorized' });
+
   try {
     await prisma.company.delete({ where: { id: Number(req.params.id) } });
     res.status(204).send();

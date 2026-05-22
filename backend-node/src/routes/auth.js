@@ -39,7 +39,7 @@ router.post('/token/', async (req, res) => {
       return res.status(401).json({ detail: 'No active account found with the given credentials' });
     }
 
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '12h' });
+    const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '12h' });
     console.log(`[LOGIN] Success for user: "${username}"`);
     res.json({ access: token, refresh: token });
   } catch (err) {

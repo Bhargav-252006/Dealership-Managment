@@ -31,6 +31,7 @@ model Dealer {
   locations     Location[]
   shops         Shop[]
   orders        Order[]
+  companies     Company[]
 }
 
 model Location {
@@ -60,9 +61,13 @@ model Shop {
 
 model Company {
   id        Int       @id @default(autoincrement())
-  name      String    @unique
+  dealer_id Int
+  dealer    Dealer    @relation(fields: [dealer_id], references: [id], onDelete: Cascade)
+  name      String
   category  String    @default("Oil")
   products  Product[]
+
+  @@unique([dealer_id, name])
 }
 
 model Product {
