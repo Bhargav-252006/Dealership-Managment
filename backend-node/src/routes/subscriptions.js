@@ -11,7 +11,7 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret_abc123'
 });
 
-const SUBSCRIPTION_FEE = 500; // ₹500
+const SUBSCRIPTION_FEE = 499; // ₹499
 
 router.post('/create-order', authenticateToken, async (req, res) => {
   try {

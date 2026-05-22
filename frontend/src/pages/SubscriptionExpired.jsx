@@ -110,7 +110,7 @@ export default function SubscriptionExpired() {
           disabled={loading || !razorpayLoaded}
           style={{ width: '100%', padding: 14, fontSize: 16, justifyContent: 'center', marginBottom: 16 }}
         >
-          {loading ? 'Initiating...' : 'Pay ₹500 & Renew Now'}
+          {loading ? 'Initiating...' : 'Pay ₹499 & Renew Now'}
         </button>
 
         <div style={{ marginTop: 32, paddingTop: 32, borderTop: '1px solid var(--glass-border)' }}>
