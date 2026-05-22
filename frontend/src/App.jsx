@@ -10,10 +10,11 @@ import CreateOrder from './pages/CreateOrder';
 import Orders from './pages/Orders';
 import Products from './pages/Products';
 import Signup from './pages/Signup';
+import AdminDashboard from './pages/AdminDashboard';
 import './index.css';
 
 function AppRoutes() {
-  const { user, loading } = useAuth();
+  const { user, loading, stopImpersonating } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading) return (
@@ -36,11 +37,32 @@ function AppRoutes() {
     );
   }
 
+  const isImpersonating = !!localStorage.getItem('adminToken');
+
   return (
     <div className="app-layout">
+      {isImpersonating && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          background: '#ef4444', color: 'white', padding: '8px 16px',
+          display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16,
+          fontWeight: 600, fontSize: 14, boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          ⚠️ You are currently impersonating dealer: {user.user?.username}
+          <button 
+            onClick={stopImpersonating}
+            style={{ 
+              background: 'white', color: '#ef4444', border: 'none', 
+              padding: '4px 12px', borderRadius: 4, fontWeight: 700, cursor: 'pointer' 
+            }}
+          >
+            Stop Impersonating
+          </button>
+        </div>
+      )}
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginTop: isImpersonating ? 36 : 0 }}>
         {/* Mobile Header */}
         <header className="mobile-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -54,12 +76,21 @@ function AppRoutes() {
 
         <main className="main-content" style={{ minHeight: 'auto' }}>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/shops" element={<Shops />} />
-            <Route path="/orders/create" element={<CreateOrder />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {user.user?.is_admin ? (
+              <>
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="*" element={<Navigate to="/admin" replace />} />
+              </>
+            ) : (
+              <>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/shops" element={<Shops />} />
+                <Route path="/orders/create" element={<CreateOrder />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </>
+            )}
           </Routes>
         </main>
       </div>

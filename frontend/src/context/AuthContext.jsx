@@ -31,8 +31,27 @@ export function AuthProvider({children}) {
     setUser(null);
   };
 
+  const impersonate = async (targetUserId) => {
+    const { data } = await API.post('/admin/impersonate', { userId: targetUserId });
+    const currentToken = localStorage.getItem('access');
+    localStorage.setItem('adminToken', currentToken);
+    localStorage.setItem('access', data.token);
+    const profile = await API.get('/me/');
+    setUser(profile.data);
+  };
+
+  const stopImpersonating = async () => {
+    const adminToken = localStorage.getItem('adminToken');
+    if (adminToken) {
+      localStorage.setItem('access', adminToken);
+      localStorage.removeItem('adminToken');
+      const profile = await API.get('/me/');
+      setUser(profile.data);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{user, login, logout, loading}}>
+    <AuthContext.Provider value={{user, login, logout, loading, impersonate, stopImpersonating}}>
       {children}
     </AuthContext.Provider>
   );
