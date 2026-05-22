@@ -15,7 +15,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import './index.css';
 
 function AppRoutes() {
-  const { user, loading } = useAuth();
+  const { user, loading, stopImpersonating } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading) return (
@@ -43,7 +43,6 @@ function AppRoutes() {
   }
 
   const isImpersonating = !!localStorage.getItem('adminToken');
-  const { stopImpersonating } = useAuth();
 
   return (
     <div className="app-layout">
