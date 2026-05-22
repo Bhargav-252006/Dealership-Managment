@@ -2,12 +2,16 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
-const LINKS = [
+const DEALER_LINKS = [
   { to: '/',        icon: '📊', label: 'Dashboard' },
   { to: '/shops',   icon: '📍', label: 'Locations & Shops' },
   { to: '/orders/create', icon: '➕', label: 'Create Order' },
   { to: '/orders',  icon: '📋', label: 'Order History' },
   { to: '/products',icon: '🏷️', label: 'Products' },
+];
+
+const ADMIN_LINKS = [
+  { to: '/admin',   icon: '👑', label: 'Dealer Management' },
 ];
 
 export default function Sidebar({ isOpen, setIsOpen }) {
@@ -57,7 +61,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </div>
 
         <nav className="nav-links">
-          {LINKS.map(link => (
+          {(user?.user?.is_admin ? ADMIN_LINKS : DEALER_LINKS).map(link => (
             <NavLink
               key={link.to}
               to={link.to}
@@ -76,7 +80,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             <div className="user-avatar">{initials}</div>
             <div>
               <div className="user-name">{name}</div>
-              <div className="user-role">{user?.business_type || 'Dealer'}</div>
+              <div className="user-role">{user?.user?.is_admin ? 'Super Admin' : (user?.business_type || 'Dealer')}</div>
             </div>
           </div>
           <button className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleLogout}>
