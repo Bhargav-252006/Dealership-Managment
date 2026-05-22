@@ -46,7 +46,7 @@ export default function Signup() {
         <div className="login-logo">
           <div className="logo-big">🛢️</div>
           <h1>Create Account</h1>
-          <p>Join DealerConnect today</p>
+          <p>Join TradeHub today</p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

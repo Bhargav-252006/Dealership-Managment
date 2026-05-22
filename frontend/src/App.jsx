@@ -23,7 +23,7 @@ function AppRoutes() {
       flexDirection: 'column', gap: 16
     }}>
       <div style={{ fontSize: 48 }}>🛢️</div>
-      <span>Loading DealerConnect...</span>
+      <span>Loading TradeHub...</span>
     </div>
   );
 
@@ -45,7 +45,7 @@ function AppRoutes() {
         <header className="mobile-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div className="logo-icon" style={{ fontSize: 24 }}>🛢️</div>
-            <h1 style={{ fontSize: 18, fontWeight: 700 }}>DealerConnect</h1>
+            <h1 style={{ fontSize: 18, fontWeight: 700 }}>TradeHub</h1>
           </div>
           <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
             ☰

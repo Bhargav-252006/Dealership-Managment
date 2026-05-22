@@ -26,7 +26,7 @@ export default function Login() {
       <div className="login-card fade-in">
         <div className="login-logo">
           <div className="logo-big">🛢️</div>
-          <h1>DealerConnect</h1>
+          <h1>TradeHub</h1>
           <p>Dealer Order Management System</p>
         </div>
 
