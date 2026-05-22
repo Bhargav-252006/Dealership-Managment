@@ -9,7 +9,7 @@ export default function Products() {
   const [prodModal, setProdModal] = useState(false);
   const [prodForm, setProdForm] = useState({company: '', product_name: '', unit_size: '', units_per_box: '', default_price: ''});
 
-  const [activeTab, setActiveTab] = useState('normal');
+  const [activeTab, setActiveTab] = useState('');
 
   const [editCompanyModal, setEditCompanyModal] = useState(false);
   const [editCompanyData, setEditCompanyData] = useState(null);
@@ -17,8 +17,14 @@ export default function Products() {
   const [editProdModal, setEditProdModal] = useState(false);
   const [editProdData, setEditProdData] = useState(null);
 
-  const fetchCompanies = () => API.get('/companies/').then(({data}) => setCompanies(data));
+  const fetchCompanies = () => API.get('/companies/').then(({data}) => {
+    setCompanies(data);
+    const cats = [...new Set(data.map(co => co.category))];
+    if (cats.length > 0 && !activeTab) setActiveTab(cats[0]);
+  });
   useEffect(() => {fetchCompanies();}, []);
+
+  const uniqueCategories = [...new Set(companies.map(co => co.category))];
 
   const saveCompany = async (e) => {
     e.preventDefault();
@@ -164,49 +170,26 @@ export default function Products() {
         <button className="btn btn-secondary" onClick={() => setProdModal(true)}>+ Add Product</button>
       </div>
 
-      <div style={{display: 'flex', gap: 12, marginBottom: 24, justifyContent: 'center', background: 'var(--bg-card)', padding: '6px', borderRadius: '30px', border: '1px solid var(--glass-border)', width: 'fit-content', margin: '0 auto 32px'}}>
-        <button
-          onClick={() => setActiveTab('normal')}
-          style={{
-            padding: '10px 24px', borderRadius: 24, border: 'none', cursor: 'pointer',
-            background: activeTab === 'normal' ? 'var(--accent)' : 'transparent',
-            color: activeTab === 'normal' ? '#fff' : 'var(--text-secondary)',
-            fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8,
-            boxShadow: activeTab === 'normal' ? '0 4px 12px var(--accent-glow)' : 'none',
-            transition: 'all 0.3s ease', fontSize: 14
-          }}>
-          🛢️ Normal Oils
-        </button>
-        <button
-          onClick={() => setActiveTab('lamp')}
-          style={{
-            padding: '10px 24px', borderRadius: 24, border: 'none', cursor: 'pointer',
-            background: activeTab === 'lamp' ? 'var(--accent)' : 'transparent',
-            color: activeTab === 'lamp' ? '#fff' : 'var(--text-secondary)',
-            fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8,
-            boxShadow: activeTab === 'lamp' ? '0 4px 12px var(--accent-glow)' : 'none',
-            transition: 'all 0.3s ease', fontSize: 14
-          }}>
-          🪔 Lamp / Palm Oil
-        </button>
-        <button
-          onClick={() => setActiveTab('atta')}
-          style={{
-            padding: '10px 24px', borderRadius: 24, border: 'none', cursor: 'pointer',
-            background: activeTab === 'atta' ? 'var(--accent)' : 'transparent',
-            color: activeTab === 'atta' ? '#fff' : 'var(--text-secondary)',
-            fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8,
-            boxShadow: activeTab === 'atta' ? '0 4px 12px var(--accent-glow)' : 'none',
-            transition: 'all 0.3s ease', fontSize: 14
-          }}>
-          🌾 Attas
-        </button>
+      <div style={{display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 24, justifyContent: 'center', background: 'var(--bg-card)', padding: '6px', borderRadius: '30px', border: '1px solid var(--glass-border)', width: 'fit-content', margin: '0 auto 32px'}}>
+        {uniqueCategories.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setActiveTab(cat)}
+            style={{
+              padding: '10px 24px', borderRadius: 24, border: 'none', cursor: 'pointer',
+              background: activeTab === cat ? 'var(--accent)' : 'transparent',
+              color: activeTab === cat ? '#fff' : 'var(--text-secondary)',
+              fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8,
+              boxShadow: activeTab === cat ? '0 4px 12px var(--accent-glow)' : 'none',
+              transition: 'all 0.3s ease', fontSize: 14
+            }}>
+            {CAT_ICON[cat] || '📦'} {cat}
+          </button>
+        ))}
       </div>
 
       <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 32}}>
-        {activeTab === 'normal' && companies.filter(co => co.category !== 'Atta' && !['Deepam Oil', 'Palm Oil'].includes(co.name)).map(co => renderCard(co))}
-        {activeTab === 'lamp' && companies.filter(co => ['Deepam Oil', 'Palm Oil'].includes(co.name)).map(co => renderCard(co))}
-        {activeTab === 'atta' && companies.filter(co => co.category === 'Atta' || ['Shubam Gold', 'Shreshta'].includes(co.name)).map(co => renderCard(co))}
+        {companies.filter(co => co.category === activeTab).map(co => renderCard(co))}
       </div>
 
       {/* Add Company Modal */}

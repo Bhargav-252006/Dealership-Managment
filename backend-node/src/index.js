@@ -24,6 +24,22 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Activity Logger Middleware
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`\n[${timestamp}] ${req.method} ${req.originalUrl}`);
+  if (Object.keys(req.body).length > 0) {
+    // Hide passwords from logs
+    const safeBody = { ...req.body };
+    if (safeBody.password) safeBody.password = '***';
+    console.log(`[BODY]`, safeBody);
+  }
+  if (Object.keys(req.query).length > 0) {
+    console.log(`[QUERY]`, req.query);
+  }
+  next();
+});
+
 // Modular Routes
 app.get('/', (req, res) => res.send('Dealership API is running! 🚀'));
 

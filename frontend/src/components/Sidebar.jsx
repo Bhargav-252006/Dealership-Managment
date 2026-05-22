@@ -39,8 +39,20 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <div className="sidebar-logo">
           <div className="logo-icon">🛢️</div>
           <div>
-            <h1>DealerConnect</h1>
+            <h1 style={{fontSize: '18px'}}>Surya Oil Dealership</h1>
             <p>Order Management</p>
+            <div style={{
+              fontSize: '11px', 
+              color: 'var(--accent)', 
+              fontWeight: 600, 
+              marginTop: '4px',
+              display: 'inline-block',
+              padding: '2px 8px',
+              background: 'rgba(217, 119, 6, 0.1)',
+              borderRadius: '12px'
+            }}>
+              ⭐ Monthly Subscription
+            </div>
           </div>
         </div>
 
