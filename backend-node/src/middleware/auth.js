@@ -15,7 +15,7 @@ const authenticateToken = (req, res, next) => {
     const timestamp = new Date().toISOString();
     const identifier = user.username ? user.username : `ID:${user.userId}`;
     console.log(`[${timestamp}] [USER ${identifier}] accessed ${req.method} ${req.originalUrl}`);
-    if (['POST', 'PATCH', 'PUT'].includes(req.method) && Object.keys(req.body).length > 0) {
+    if (['POST', 'PATCH', 'PUT'].includes(req.method) && req.body && Object.keys(req.body).length > 0) {
       console.log(`[USER ${identifier}] BODY:`, req.body);
     }
     
