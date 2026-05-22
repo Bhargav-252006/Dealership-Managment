@@ -27,30 +27,40 @@ export default function Shops() {
   const [allShops, setAllShops] = useState([]);
 
   const fetchLocations = () => API.get('/locations/').then(({ data }) => setLocations(data));
-  const fetchShops = (locId = '') => {
-    if (allShops.length > 0 && !locId) {
-      // Already loaded, just reset filter
-      setShops(allShops);
-      return;
-    }
-    const url = '/shops/';
-    API.get(url).then(({ data }) => {
-      setAllShops(data);
-      setShops(locId ? data.filter(s => s.location_id == locId) : data);
+  const fetchShops = () => {
+    API.get('/shops/').then(({ data }) => {
+      // Normalize: backend returns 'location' as the ID field
+      const normalized = data.map(s => ({ ...s, location_id: s.location ?? s.location_id }));
+      setAllShops(normalized);
+      setShops(normalized);
     });
   };
 
   useEffect(() => { fetchLocations(); fetchShops(); }, []);
 
+  // Re-filter shops whenever activeDay or allShops or locations change
+  useEffect(() => {
+    if (allShops.length === 0) return;
+    setSelectedLoc('');
+    if (activeDay === 'All') {
+      setShops(allShops);
+    } else {
+      const activeLocs = locations.filter(l => l.visit_day === activeDay).map(l => l.id);
+      setShops(allShops.filter(s => activeLocs.includes(s.location_id)));
+    }
+  }, [activeDay, allShops, locations]);
+
   const filterByLocation = (id) => {
     setSelectedLoc(id);
-    // Filter client-side — no extra API call needed!
     if (id) {
       setShops(allShops.filter(s => s.location_id == id));
     } else {
-      // Filter by active day
-      const activeLocs = locations.filter(l => activeDay === 'All' || l.visit_day === activeDay).map(l => l.id);
-      setShops(allShops.filter(s => activeLocs.includes(s.location_id)));
+      if (activeDay === 'All') {
+        setShops(allShops);
+      } else {
+        const activeLocs = locations.filter(l => l.visit_day === activeDay).map(l => l.id);
+        setShops(allShops.filter(s => activeLocs.includes(s.location_id)));
+      }
     }
   };
 
@@ -74,7 +84,7 @@ export default function Shops() {
       setShowShopModal(false);
       setShopForm({ shop_name: '', owner_name: '', phone: '', address: '', location: '' });
       setAllShops([]); // invalidate cache
-      fetchShops(selectedLoc);
+      fetchShops();
     } catch { toast.error('Failed to add shop'); }
   };
 
@@ -85,7 +95,7 @@ export default function Shops() {
       toast.success('Shop updated!');
       setEditShopModal(false);
       setAllShops([]); // invalidate cache
-      fetchShops(selectedLoc);
+      fetchShops();
     } catch { toast.error('Failed to update shop'); }
   };
 
