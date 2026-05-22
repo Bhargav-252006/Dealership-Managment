@@ -23,17 +23,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleToggleSubscription = async (userId, currentStatus) => {
-    try {
-      const { data } = await API.patch(`/admin/users/${userId}/subscription`, {
-        is_active: !currentStatus
-      });
-      setUsers(users.map(u => u.id === userId ? { ...u, is_active: data.is_active } : u));
-      toast.success(`Subscription ${data.is_active ? 'activated' : 'deactivated'}`);
-    } catch (err) {
-      toast.error('Failed to update subscription');
-    }
-  };
+
 
   const handleImpersonate = async (userId, username) => {
     try {
@@ -64,7 +54,6 @@ export default function AdminDashboard() {
               <tr style={{ borderBottom: '1px solid var(--glass-border)', backgroundColor: 'var(--surface-hover)' }}>
                 <th style={{ padding: 16, color: 'var(--text-secondary)', fontWeight: 600, fontSize: 14 }}>Dealer</th>
                 <th style={{ padding: 16, color: 'var(--text-secondary)', fontWeight: 600, fontSize: 14 }}>Type</th>
-                <th style={{ padding: 16, color: 'var(--text-secondary)', fontWeight: 600, fontSize: 14 }}>Status</th>
                 <th style={{ padding: 16, color: 'var(--text-secondary)', fontWeight: 600, fontSize: 14 }}>Actions</th>
               </tr>
             </thead>
@@ -78,35 +67,10 @@ export default function AdminDashboard() {
                   <td style={{ padding: 16, fontSize: 14, color: 'var(--text-secondary)' }}>
                     {u.business_type || 'N/A'}
                   </td>
-                  <td style={{ padding: 16 }}>
-                    <span style={{ 
-                      padding: '4px 8px', 
-                      borderRadius: 12, 
-                      fontSize: 12, 
-                      fontWeight: 600,
-                      backgroundColor: u.is_active ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                      color: u.is_active ? '#4ade80' : '#f87171'
-                    }}>
-                      {u.is_active ? 'ACTIVE' : 'EXPIRED'}
-                    </span>
-                  </td>
+
                   <td style={{ padding: 16 }}>
                     <div style={{ display: 'flex', gap: 8 }}>
-                      <button 
-                        onClick={() => handleToggleSubscription(u.id, u.is_active)}
-                        style={{ 
-                          padding: '6px 12px', 
-                          borderRadius: 6, 
-                          border: '1px solid var(--glass-border)', 
-                          backgroundColor: 'transparent',
-                          color: 'var(--text-primary)',
-                          cursor: 'pointer',
-                          fontSize: 12,
-                          fontWeight: 600
-                        }}
-                      >
-                        {u.is_active ? 'Deactivate' : 'Activate'}
-                      </button>
+
                       <button 
                         onClick={() => handleImpersonate(u.id, u.username)}
                         style={{ 
