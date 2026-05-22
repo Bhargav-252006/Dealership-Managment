@@ -10,6 +10,7 @@ import CreateOrder from './pages/CreateOrder';
 import Orders from './pages/Orders';
 import Products from './pages/Products';
 import Signup from './pages/Signup';
+import SubscriptionExpired from './pages/SubscriptionExpired';
 import './index.css';
 
 function AppRoutes() {
@@ -53,14 +54,18 @@ function AppRoutes() {
         </header>
 
         <main className="main-content" style={{ minHeight: 'auto' }}>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/shops" element={<Shops />} />
-            <Route path="/orders/create" element={<CreateOrder />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          {!user.user?.is_active ? (
+            <SubscriptionExpired />
+          ) : (
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/shops" element={<Shops />} />
+              <Route path="/orders/create" element={<CreateOrder />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          )}
         </main>
       </div>
     </div>

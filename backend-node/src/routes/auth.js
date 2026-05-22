@@ -119,12 +119,14 @@ router.get('/me/', authenticateToken, async (req, res) => {
     phone: dealer.phone,
     business_type: dealer.business_type,
     created_at: dealer.created_at,
+    subscription_expires_at: dealer.subscription_expires_at,
     user: {
       id: dealer.user.id,
       username: dealer.user.username,
       first_name: dealer.user.first_name,
       last_name: dealer.user.last_name,
-      email: dealer.user.email
+      email: dealer.user.email,
+      is_active: dealer.user.is_active
     }
   });
 });

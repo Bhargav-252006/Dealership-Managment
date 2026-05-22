@@ -89,6 +89,43 @@ router.post('/', authenticateToken, async (req, res) => {
   });
 });
 
+router.get('/export-csv', authenticateToken, async (req, res) => {
+  const dealerId = await getDealerId(req.user.userId);
+  const orders = await prisma.order.findMany({
+    where: { dealer_id: dealerId },
+    include: {
+      shop: { include: { location: true } },
+      items: { include: { product: { include: { company: true } } } }
+    },
+    orderBy: { created_at: 'desc' }
+  });
+
+  let csvRows = ['Order ID,Date,Shop Name,Location,Product,Company,Size,Qty,Rate,Subtotal'];
+  
+  orders.forEach(order => {
+    order.items.forEach(item => {
+      const subtotal = (Number(item.quantity) * Number(item.price)).toFixed(2);
+      const row = [
+        order.id,
+        order.order_date.toISOString().split('T')[0],
+        `"${order.shop.shop_name}"`,
+        `"${order.shop.location?.name || ''}"`,
+        `"${item.product.product_name}"`,
+        `"${item.product.company.name}"`,
+        `"${item.product.unit_size}"`,
+        item.quantity,
+        item.price,
+        subtotal
+      ];
+      csvRows.push(row.join(','));
+    });
+  });
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment; filename="orders_history.csv"');
+  res.send(csvRows.join('\n'));
+});
+
 // Status update endpoint removed - status feature removed
 
 

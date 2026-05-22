@@ -42,6 +42,7 @@ app.use('/api/shops', require('./routes/shops'));
 app.use('/api/companies', require('./routes/companies'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
+app.use('/api/subscriptions', require('./routes/subscriptions'));
 
 // Export for Vercel serverless
 module.exports = app;
