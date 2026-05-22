@@ -28,10 +28,16 @@ app.use('/api/companies', require('./routes/companies'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-  console.log(`[SERVER] Node Server running on port ${PORT}`);
-  console.log(`[SERVER] DATABASE_URL set: ${!!process.env.DATABASE_URL}`);
-  console.log(`[SERVER] DIRECT_URL set: ${!!process.env.DIRECT_URL}`);
-  console.log(`[SERVER] JWT_SECRET set: ${!!process.env.JWT_SECRET}`);
-});
+// Export for Vercel serverless
+module.exports = app;
+
+// Only listen when run directly (not on Vercel)
+if (require.main === module) {
+  const PORT = process.env.PORT || 8000;
+  app.listen(PORT, () => {
+    console.log(`[SERVER] Node Server running on port ${PORT}`);
+    console.log(`[SERVER] DATABASE_URL set: ${!!process.env.DATABASE_URL}`);
+    console.log(`[SERVER] DIRECT_URL set: ${!!process.env.DIRECT_URL}`);
+    console.log(`[SERVER] JWT_SECRET set: ${!!process.env.JWT_SECRET}`);
+  });
+}
