@@ -11,6 +11,7 @@ import Orders from './pages/Orders';
 import Products from './pages/Products';
 import Signup from './pages/Signup';
 import AdminDashboard from './pages/AdminDashboard';
+import InactiveAccount from './pages/InactiveAccount';
 import './index.css';
 
 function AppRoutes() {
@@ -35,6 +36,10 @@ function AppRoutes() {
         <Route path="*" element={<Login />} />
       </Routes>
     );
+  }
+
+  if (!user.user?.is_active && !user.user?.is_admin) {
+    return <InactiveAccount />;
   }
 
   const isImpersonating = !!localStorage.getItem('adminToken');
