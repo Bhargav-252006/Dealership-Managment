@@ -10,29 +10,31 @@ datasource db {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  username   String    @unique
-  password   String
-  first_name String?
-  last_name  String?
-  email      String?
-  is_active  Boolean   @default(true)
-  is_admin   Boolean   @default(false)
-  created_at DateTime  @default(now())
-  dealer     Dealer?
+  id            Int           @id @default(autoincrement())
+  username      String        @unique
+  password      String
+  first_name    String?
+  last_name     String?
+  email         String?
+  is_active     Boolean       @default(true)
+  is_admin      Boolean       @default(false)
+  created_at    DateTime      @default(now())
+  dealer        Dealer?
+  activity_logs ActivityLog[]
 }
 
 model Dealer {
-  id            Int        @id @default(autoincrement())
-  user_id       Int        @unique
-  user          User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id            Int            @id @default(autoincrement())
+  user_id       Int            @unique
+  user          User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
   phone         String?
-  business_type String     @default("Oil")
-  created_at    DateTime   @default(now())
+  business_type String         @default("Oil")
+  created_at    DateTime       @default(now())
   locations     Location[]
   shops         Shop[]
   orders        Order[]
   companies     Company[]
+  notifications Notification[]
 }
 
 model Location {
@@ -103,4 +105,30 @@ model OrderItem {
   product    Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
   quantity   Int     @default(1)
   price      Decimal
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  dealer_id  Int
+  dealer     Dealer   @relation(fields: [dealer_id], references: [id], onDelete: Cascade)
+  title      String
+  message    String
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+}
+
+model ActivityLog {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  action     String
+  details    String?
+  created_at DateTime @default(now())
+}
+
+model Announcement {
+  id         Int      @id @default(autoincrement())
+  title      String
+  message    String
+  created_at DateTime @default(now())
 }

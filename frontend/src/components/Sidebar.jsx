@@ -1,5 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import NotificationBell from './NotificationBell';
 import toast from 'react-hot-toast';
 
 const DEALER_LINKS = [
@@ -16,6 +18,7 @@ const ADMIN_LINKS = [
 
 export default function Sidebar({ isOpen, setIsOpen }) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
   const handleLogout = () => {
@@ -76,13 +79,23 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-info" style={{ marginBottom: 10 }}>
-            <div className="user-avatar">{initials}</div>
-            <div>
-              <div className="user-name">{name}</div>
-              <div className="user-role">{user?.user?.is_admin ? 'Super Admin' : (user?.business_type || 'Dealer')}</div>
+          <div className="user-info" style={{ marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className="user-avatar">{initials}</div>
+              <div>
+                <div className="user-name">{name}</div>
+                <div className="user-role">{user?.user?.is_admin ? 'Super Admin' : (user?.business_type || 'Dealer')}</div>
+              </div>
             </div>
+            {!user?.user?.is_admin && <NotificationBell />}
           </div>
+          <button 
+            className="btn btn-secondary" 
+            style={{ width: '100%', justifyContent: 'center', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }} 
+            onClick={toggleTheme}
+          >
+            {theme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+          </button>
           <button className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleLogout}>
             🚪 Sign Out
           </button>

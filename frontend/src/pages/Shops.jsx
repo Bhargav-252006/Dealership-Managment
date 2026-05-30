@@ -16,6 +16,19 @@ export default function Shops() {
   
   const [shopForm, setShopForm] = useState({ shop_name: '', owner_name: '', phone: '', address: '', location: '' });
 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredShops = shops.filter(shop => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      (shop.shop_name || '').toLowerCase().includes(query) ||
+      (shop.owner_name || '').toLowerCase().includes(query) ||
+      (shop.phone || '').toLowerCase().includes(query) ||
+      (shop.address || '').toLowerCase().includes(query)
+    );
+  });
+
   // Edit shop
   const [editShopModal, setEditShopModal] = useState(false);
   const [editShopData, setEditShopData] = useState(null);
@@ -99,22 +112,25 @@ export default function Shops() {
     } catch { toast.error('Failed to update shop'); }
   };
 
-  const deleteShop = async () => {
-    if (!window.confirm(`Delete shop "${editShopData.shop_name}"? This cannot be undone.`)) return;
+  const deleteShop = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this shop?')) return;
     try {
-      await API.delete(`/shops/${editShopData.id}/`);
-      toast.success('Shop deleted');
-      setEditShopModal(false);
-      fetchShops(selectedLoc);
-    } catch { toast.error('Cannot delete — shop may have existing orders'); }
+      await API.delete(`/shops/${id}/`);
+      toast.success('Shop deleted!');
+      setAllShops([]); // invalidate cache
+      fetchShops();
+    } catch { toast.error('Cannot delete shop with orders'); }
   };
 
   const deleteLocation = async (id) => {
-    if (!window.confirm('Delete this location?')) return;
-    await API.delete(`/locations/${id}/`);
-    toast.success('Location deleted');
-    fetchLocations();
-    fetchShops();
+    if (!window.confirm('Delete this location? This will not delete shops inside it.')) return;
+    try {
+      await API.delete(`/locations/${id}/`);
+      toast.success('Location deleted');
+      fetchLocations();
+      setAllShops([]); // invalidate cache
+      fetchShops();
+    } catch { toast.error('Failed to delete location'); }
   };
 
   const viewShopOrders = async (shop) => {
@@ -122,31 +138,30 @@ export default function Shops() {
       const { data } = await API.get(`/orders/?shop=${shop.id}`);
       setShopOrders({ shop, orders: data });
       setShowShopOrdersModal(true);
-    } catch {
-      toast.error('Failed to load shop orders');
-    }
+    } catch { toast.error('Failed to load shop orders'); }
   };
 
   const STATUS_COLORS = {
     Ordered:   { badge: 'badge-ordered' },
     Shipped:   { badge: 'badge-shipped' },
-    Delivered: { badge: 'badge-delivered' },
+    Delivered: { badge: 'badge-delivered' }
   };
 
   return (
     <>
       <div className="fade-in">
-        <div className="page-header">
-          <h2>📍 Locations &amp; Shops</h2>
-          <p>Manage your delivery areas and shop network.</p>
-        </div>
+      <div className="page-header">
+        <h2>🏪 Locations &amp; Shops</h2>
+        <p>Manage your client database — group shops by visit area.</p>
+      </div>
 
-      {/* Locations Section */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+        <button className="btn btn-primary" onClick={() => setShowLocModal(true)}>+ Add Area</button>
+      </div>
+
+      {/* Locations Card */}
       <div className="card" style={{ marginBottom: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700 }}>🗺️ Locations</h3>
-          <button className="btn btn-primary btn-sm" onClick={() => setShowLocModal(true)}>+ Add Location</button>
-        </div>
+        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>📍 Delivery Route Areas</h3>
 
         {/* Weekday Filter */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid var(--glass-border)' }}>
@@ -198,19 +213,42 @@ export default function Shops() {
       {/* Shops Section */}
       <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700 }}>🏪 Shops ({shops.length})</h3>
+          <h3 style={{ fontSize: 16, fontWeight: 700 }}>🏪 Shops ({filteredShops.length})</h3>
           <button className="btn btn-primary btn-sm" onClick={() => setShowShopModal(true)}>+ Add Shop</button>
         </div>
 
-        {shops.length === 0 ? (
+        {/* Search Input */}
+        <div style={{ marginBottom: 16 }}>
+          <input
+            type="text"
+            placeholder="🔍 Search shop name, owner, phone, or address..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: '1px solid var(--glass-border)',
+              background: 'rgba(255,255,255,0.02)',
+              color: 'var(--text-primary)',
+              fontSize: '13px',
+              outline: 'none',
+              transition: 'border-color 0.2s',
+            }}
+            onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+            onBlur={e => e.target.style.borderColor = 'var(--glass-border)'}
+          />
+        </div>
+
+        {filteredShops.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">🏪</div>
             <h3>No shops found</h3>
-            <p>Add shops to start taking orders</p>
+            <p>Add shops or refine your search query</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {shops.map(shop => (
+            {filteredShops.map(shop => (
               <div
                 key={shop.id}
                 onClick={() => viewShopOrders(shop)}

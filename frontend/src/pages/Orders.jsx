@@ -9,6 +9,7 @@ export default function Orders() {
   const [selected, setSelected] = useState(null);
   const [filters, setFilters] = useState({ location: '', shop: '' });
   const [shops, setShops] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchOrders = (f = filters) => {
     const params = new URLSearchParams();
@@ -58,6 +59,29 @@ export default function Orders() {
         </div>
       </div>
 
+      {/* Search Input */}
+      <div style={{ marginBottom: 16 }}>
+        <input
+          type="text"
+          placeholder="🔍 Search by Order ID or Shop Name..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '10px 16px',
+            borderRadius: '8px',
+            border: '1px solid var(--glass-border)',
+            background: 'rgba(255,255,255,0.02)',
+            color: 'var(--text-primary)',
+            fontSize: '13px',
+            outline: 'none',
+            transition: 'border-color 0.2s',
+          }}
+          onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+          onBlur={e => e.target.style.borderColor = 'var(--glass-border)'}
+        />
+      </div>
+
       {/* Filters */}
       <div className="filters-bar">
         <select value={filters.location} onChange={e => setFilter('location', e.target.value)}>
@@ -68,46 +92,56 @@ export default function Orders() {
           <option value="">All Shops</option>
           {shops.map(s => <option key={s.id} value={s.id}>🏪 {s.shop_name}</option>)}
         </select>
-        <button className="btn btn-secondary btn-sm" onClick={() => { setFilters({ location: '', shop: '' }); fetchOrders({ location: '', shop: '' }); }}>
+        <button className="btn btn-secondary btn-sm" onClick={() => { setFilters({ location: '', shop: '' }); setSearchQuery(''); fetchOrders({ location: '', shop: '' }); }}>
           🔄 Clear
         </button>
-        <span style={{ marginLeft: 'auto', color: 'var(--text-muted)', fontSize: 13 }}>{orders.length} orders</span>
+        <span style={{ marginLeft: 'auto', color: 'var(--text-muted)', fontSize: 13 }}>{filteredOrders.length} orders</span>
       </div>
 
       {/* Orders List */}
       <div className="card">
         {loading ? (
           <div className="empty-state"><div className="empty-icon">⏳</div><h3>Loading orders...</h3></div>
-        ) : orders.length === 0 ? (
+        ) : filteredOrders.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">📭</div>
             <h3>No orders found</h3>
-            <p>Try changing the filters or create a new order</p>
+            <p>Try changing the filters or search query</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {orders.map(order => (
-              <div
-                key={order.id}
-                onClick={() => setSelected(order)}
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: 12, padding: '14px 18px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, transition: 'all 0.2s' }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.16)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--glass-border)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>
-                    <span style={{ color: 'var(--accent-light)' }}>#{order.id}</span> — {order.shop_name}
+            {(() => {
+              const filteredOrders = orders.filter(order => {
+                if (!searchQuery.trim()) return true;
+                const query = searchQuery.toLowerCase();
+                return (
+                  order.id.toString().includes(query) ||
+                  (order.shop_name || '').toLowerCase().includes(query)
+                );
+              });
+              return filteredOrders.map(order => (
+                <div
+                  key={order.id}
+                  onClick={() => setSelected(order)}
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: 12, padding: '14px 18px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.16)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--glass-border)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>
+                      <span style={{ color: 'var(--accent-light)' }}>#{order.id}</span> — {order.shop_name}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                      📍 {order.location_name} &nbsp;•&nbsp; 📅 {order.order_date} &nbsp;•&nbsp; {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                    📍 {order.location_name} &nbsp;•&nbsp; 📅 {order.order_date} &nbsp;•&nbsp; {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                  <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--accent-light)', flexShrink: 0 }}>
+                    ₹{parseFloat(order.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
+                  <span style={{ color: 'var(--text-muted)', fontSize: 18, flexShrink: 0 }}>›</span>
                 </div>
-                <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--accent-light)', flexShrink: 0 }}>
-                  ₹{parseFloat(order.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </div>
-                <span style={{ color: 'var(--text-muted)', fontSize: 18, flexShrink: 0 }}>›</span>
-              </div>
-            ))}
+              ));
+            })()}
           </div>
         )}
       </div>

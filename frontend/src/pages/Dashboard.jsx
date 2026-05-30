@@ -3,18 +3,23 @@ import API from '../api';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    API.get('/dashboard/')
-      .then(({ data }) => {
-        setStats(data);
+    Promise.all([
+      API.get('/dashboard/'),
+      API.get('/announcements/')
+    ])
+      .then(([statsRes, annRes]) => {
+        setStats(statsRes.data);
+        setAnnouncements(annRes.data);
         setLoading(false);
       })
       .catch(err => {
         console.error(err);
         setLoading(false);
-        setStats(null); // Explicitly null
+        setStats(null);
       });
   }, []);
 
@@ -36,6 +41,27 @@ export default function Dashboard() {
         <h2>📊 Dashboard</h2>
         <p>Welcome back! Here's what's happening today.</p>
       </div>
+
+      {announcements.length > 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-primary)' }}>
+            📢 Announcements
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {announcements.map(ann => (
+              <div key={ann.id} className="card" style={{ padding: '14px 18px', borderLeft: '4px solid var(--accent)', margin: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4, flexWrap: 'wrap', gap: 8 }}>
+                  <h4 style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>{ann.title}</h4>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                    {new Date(ann.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.4, whiteSpace: 'pre-line' }}>{ann.message}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="stats-grid">
         <div className="stat-card purple">

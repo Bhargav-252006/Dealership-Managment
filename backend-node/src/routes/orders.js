@@ -78,8 +78,20 @@ router.post('/', authenticateToken, async (req, res) => {
     include: {
       shop: { include: { location: true } },
       items: { include: { product: { include: { company: true } } } }
-    }
   });
+
+  // Create order notification for the dealer
+  try {
+    await prisma.notification.create({
+      data: {
+        dealer_id: dealerId,
+        title: `📦 Order Placed`,
+        message: `Your order #${order.id} for "${order.shop.shop_name}" has been placed successfully.`
+      }
+    });
+  } catch (err) {
+    console.error('Failed to create order notification:', err.message);
+  }
 
   res.status(201).json({
     id: order.id,

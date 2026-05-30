@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Sidebar from './components/Sidebar';
+import NotificationBell from './components/NotificationBell';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Shops from './pages/Shops';
@@ -16,6 +18,7 @@ import './index.css';
 
 function AppRoutes() {
   const { user, loading, stopImpersonating } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading) return (
@@ -75,9 +78,18 @@ function AppRoutes() {
             <div className="logo-icon" style={{ fontSize: 24 }}>🛢️</div>
             <h1 style={{ fontSize: 18, fontWeight: 700 }}>TradeHub</h1>
           </div>
-          <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
-            ☰
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {!user?.user?.is_admin && <NotificationBell />}
+            <button 
+              onClick={toggleTheme} 
+              style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--text-primary)', padding: 4 }}
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
+            <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
+              ☰
+            </button>
+          </div>
         </header>
 
         <main className="main-content" style={{ minHeight: 'auto' }}>
@@ -107,23 +119,25 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: '#1e2640',
-              color: '#f1f5f9',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 10,
-              fontSize: 14,
-            },
-            success: { iconTheme: { primary: '#22c55e', secondary: '#fff' } },
-            error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
-          }}
-        />
-        <AppRoutes />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: '#1e2640',
+                color: '#f1f5f9',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 10,
+                fontSize: 14,
+              },
+              success: { iconTheme: { primary: '#22c55e', secondary: '#fff' } },
+              error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
+            }}
+          />
+          <AppRoutes />
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

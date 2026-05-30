@@ -78,4 +78,105 @@ router.post('/impersonate', async (req, res) => {
   }
 });
 
+// GET recent activity logs
+router.get('/activity-logs', async (req, res) => {
+  try {
+    const logs = await prisma.activityLog.findMany({
+      include: {
+        user: {
+          select: {
+            username: true,
+            first_name: true,
+            last_name: true
+          }
+        }
+      },
+      orderBy: { created_at: 'desc' },
+      take: 100
+    });
+    res.json(logs);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET analytics dashboard metrics
+router.get('/analytics', async (req, res) => {
+  try {
+    const [totalOrders, totalDealers, totalShops, orders] = await prisma.$transaction([
+      prisma.order.count(),
+      prisma.dealer.count(),
+      prisma.shop.count(),
+      prisma.order.findMany({
+        include: {
+          items: true,
+          dealer: {
+            include: {
+              user: {
+                select: {
+                  username: true,
+                  first_name: true,
+                  last_name: true
+                }
+              }
+            }
+          }
+        }
+      })
+    ]);
+
+    let totalRevenue = 0;
+    const dealerMap = {};
+    const dailyRevenueMap = {};
+
+    orders.forEach(order => {
+      const orderAmount = order.items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.price)), 0);
+      totalRevenue += orderAmount;
+
+      const dId = order.dealer_id;
+      const dName = order.dealer.user.first_name 
+        ? `${order.dealer.user.first_name} ${order.dealer.user.last_name || ''}`.trim()
+        : order.dealer.user.username;
+
+      if (!dealerMap[dId]) {
+        dealerMap[dId] = { id: dId, name: dName, revenue: 0, ordersCount: 0 };
+      }
+      dealerMap[dId].revenue += orderAmount;
+      dealerMap[dId].ordersCount += 1;
+
+      const dateStr = order.order_date.toISOString().split('T')[0];
+      dailyRevenueMap[dateStr] = (dailyRevenueMap[dateStr] || 0) + orderAmount;
+    });
+
+    const topDealers = Object.values(dealerMap)
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5)
+      .map(d => ({
+        ...d,
+        revenue: d.revenue.toFixed(2)
+      }));
+
+    const dailyRevenue = Object.entries(dailyRevenueMap)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .slice(-14)
+      .map(([date, revenue]) => ({
+        date,
+        revenue: revenue.toFixed(2)
+      }));
+
+    res.json({
+      totalOrders,
+      totalDealers,
+      totalShops,
+      totalRevenue: totalRevenue.toFixed(2),
+      topDealers,
+      dailyRevenue
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

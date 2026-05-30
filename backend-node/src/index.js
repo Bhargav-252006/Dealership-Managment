@@ -23,6 +23,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(require('./middleware/activityLogger'));
 
 // Modular Routes
 app.get('/', (req, res) => res.send('Dealership API is running! 🚀'));
@@ -42,6 +43,8 @@ app.use('/api/shops', require('./routes/shops'));
 app.use('/api/companies', require('./routes/companies'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/announcements', require('./routes/announcements'));
 app.use('/api/admin', require('./middleware/auth'), require('./middleware/adminAuth'), require('./routes/admin'));
 
 // Export for Vercel serverless

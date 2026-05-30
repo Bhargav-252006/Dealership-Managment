@@ -10,6 +10,7 @@ export default function Products() {
   const [prodForm, setProdForm] = useState({company: '', product_name: '', unit_size: '', units_per_box: '', default_price: ''});
 
   const [activeTab, setActiveTab] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [editCompanyModal, setEditCompanyModal] = useState(false);
   const [editCompanyData, setEditCompanyData] = useState(null);
@@ -104,6 +105,22 @@ export default function Products() {
 
   const renderCard = (co) => {
     const {bg, color} = catColor(co.category);
+    const query = searchQuery.toLowerCase().trim();
+    const companyMatches = co.name.toLowerCase().includes(query) || co.category.toLowerCase().includes(query);
+
+    const filteredProducts = co.products.filter(p => {
+      if (!query) return true;
+      if (companyMatches) return true; // Show all products for matching brand name
+      return (
+        p.product_name.toLowerCase().includes(query) ||
+        p.unit_size.toLowerCase().includes(query)
+      );
+    });
+
+    if (query && !companyMatches && filteredProducts.length === 0) {
+      return null; // Hide the company card if it doesn't match and has no matching products
+    }
+
     return (
       <div key={co.id} className="card" style={{padding: 20}}>
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14}}>
@@ -120,11 +137,11 @@ export default function Products() {
           </div>
         </div>
 
-        {co.products.length === 0 ? (
-          <p style={{color: 'var(--text-muted)', fontSize: 13}}>No products yet</p>
+        {filteredProducts.length === 0 ? (
+          <p style={{color: 'var(--text-muted)', fontSize: 13}}>{co.products.length === 0 ? 'No products yet' : 'No matching products'}</p>
         ) : (
           <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
-            {[...co.products].sort((a, b) => a.unit_size.localeCompare(b.unit_size)).map(p => (
+            {[...filteredProducts].sort((a, b) => a.unit_size.localeCompare(b.unit_size)).map(p => (
               <div key={p.id} style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '8px 12px', background: 'rgba(255,255,255,0.03)',
@@ -158,40 +175,83 @@ export default function Products() {
     );
   };
 
+  const queryClean = searchQuery.toLowerCase().trim();
+  const filteredCompanies = companies.filter(co => {
+    if (!queryClean) return co.category === activeTab;
+    const companyMatches = co.name.toLowerCase().includes(queryClean) || co.category.toLowerCase().includes(queryClean);
+    const hasMatchingProduct = co.products.some(p => 
+      p.product_name.toLowerCase().includes(queryClean) || p.unit_size.toLowerCase().includes(queryClean)
+    );
+    return companyMatches || hasMatchingProduct;
+  });
+
   return (
     <>
       <div className="fade-in">
         <div className="page-header">
-        <h2>🏷️ Products &amp; Companies</h2>
-        <p>Manage your product catalog — brands and their variants.</p>
-      </div>
+          <h2>🏷️ Products &amp; Companies</h2>
+          <p>Manage your product catalog — brands and their variants.</p>
+        </div>
 
-      <div style={{display: 'flex', gap: 12, marginBottom: 24}}>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Add Company</button>
-        <button className="btn btn-secondary" onClick={() => setProdModal(true)}>+ Add Product</button>
-      </div>
+        <div style={{display: 'flex', gap: 12, marginBottom: 24}}>
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Add Company</button>
+          <button className="btn btn-secondary" onClick={() => setProdModal(true)}>+ Add Product</button>
+        </div>
 
-      <div style={{display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 24, justifyContent: 'center', background: 'var(--bg-card)', padding: '6px', borderRadius: '30px', border: '1px solid var(--glass-border)', width: 'fit-content', margin: '0 auto 32px'}}>
-        {uniqueCategories.map(cat => (
-          <button
-            key={cat}
-            onClick={() => setActiveTab(cat)}
+        {/* Search Bar */}
+        <div style={{ marginBottom: 24 }}>
+          <input
+            type="text"
+            placeholder="🔍 Search products or company brands..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
             style={{
-              padding: '10px 24px', borderRadius: 24, border: 'none', cursor: 'pointer',
-              background: activeTab === cat ? 'var(--accent)' : 'transparent',
-              color: activeTab === cat ? '#fff' : 'var(--text-secondary)',
-              fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8,
-              boxShadow: activeTab === cat ? '0 4px 12px var(--accent-glow)' : 'none',
-              transition: 'all 0.3s ease', fontSize: 14
-            }}>
-            {CAT_ICON[cat] || '📦'} {cat}
-          </button>
-        ))}
-      </div>
+              width: '100%',
+              padding: '10px 16px',
+              borderRadius: '8px',
+              border: '1px solid var(--glass-border)',
+              background: 'rgba(255,255,255,0.02)',
+              color: 'var(--text-primary)',
+              fontSize: '13px',
+              outline: 'none',
+              transition: 'border-color 0.2s',
+            }}
+            onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+            onBlur={e => e.target.style.borderColor = 'var(--glass-border)'}
+          />
+        </div>
 
-      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 32}}>
-        {companies.filter(co => co.category === activeTab).map(co => renderCard(co))}
-      </div>
+        {!searchQuery.trim() && (
+          <div style={{display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 24, justifyContent: 'center', background: 'var(--bg-card)', padding: '6px', borderRadius: '30px', border: '1px solid var(--glass-border)', width: 'fit-content', margin: '0 auto 32px'}}>
+            {uniqueCategories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveTab(cat)}
+                style={{
+                  padding: '10px 24px', borderRadius: 24, border: 'none', cursor: 'pointer',
+                  background: activeTab === cat ? 'var(--accent)' : 'transparent',
+                  color: activeTab === cat ? '#fff' : 'var(--text-secondary)',
+                  fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8,
+                  boxShadow: activeTab === cat ? '0 4px 12px var(--accent-glow)' : 'none',
+                  transition: 'all 0.3s ease', fontSize: 14
+                }}>
+                {CAT_ICON[cat] || '📦'} {cat}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {filteredCompanies.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">🏷️</div>
+            <h3>No products or brands found</h3>
+            <p>Try searching for a different term or add new companies/products</p>
+          </div>
+        ) : (
+          <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, marginBottom: 32}}>
+            {filteredCompanies.map(co => renderCard(co))}
+          </div>
+        )}
       </div>
 
       {/* Add Company Modal */}
