@@ -87,7 +87,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                 <div className="user-role">{user?.user?.is_admin ? 'Super Admin' : (user?.business_type || 'Dealer')}</div>
               </div>
             </div>
-            {!user?.user?.is_admin && <NotificationBell />}
+            {!user?.user?.is_admin && <NotificationBell align="left" />}
           </div>
           <button 
             className="btn btn-secondary" 

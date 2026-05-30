@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import API from '../api';
 
-export default function NotificationBell() {
+export default function NotificationBell({ align = 'right' }) {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -103,8 +103,10 @@ export default function NotificationBell() {
         <div
           style={{
             position: 'absolute',
-            top: '40px',
-            right: 0,
+            bottom: align === 'left' ? '45px' : 'auto',
+            top: align === 'left' ? 'auto' : '40px',
+            left: align === 'left' ? 0 : 'auto',
+            right: align === 'left' ? 'auto' : 0,
             width: '320px',
             background: 'var(--bg-secondary)',
             border: '1px solid var(--glass-border)',
