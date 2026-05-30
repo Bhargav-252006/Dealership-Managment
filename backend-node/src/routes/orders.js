@@ -78,6 +78,7 @@ router.post('/', authenticateToken, async (req, res) => {
     include: {
       shop: { include: { location: true } },
       items: { include: { product: { include: { company: true } } } }
+    }
   });
 
   // Create order notification for the dealer
