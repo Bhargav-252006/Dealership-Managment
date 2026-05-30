@@ -26,16 +26,14 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-// PATCH mark a notification as read
-router.patch('/:id/read', authenticateToken, async (req, res) => {
+// PATCH mark all notifications as read
+router.patch('/read-all', authenticateToken, async (req, res) => {
   try {
     const dealerId = await getDealerId(req.user.userId);
     if (!dealerId) return res.status(404).json({ error: 'Dealer not found' });
 
-    const notifId = Number(req.params.id);
-    
-    const notification = await prisma.notification.updateMany({
-      where: { id: notifId, dealer_id: dealerId },
+    await prisma.notification.updateMany({
+      where: { dealer_id: dealerId, is_read: false },
       data: { is_read: true }
     });
 
@@ -46,14 +44,16 @@ router.patch('/:id/read', authenticateToken, async (req, res) => {
   }
 });
 
-// PATCH mark all notifications as read
-router.patch('/read-all', authenticateToken, async (req, res) => {
+// PATCH mark a notification as read
+router.patch('/:id/read', authenticateToken, async (req, res) => {
   try {
     const dealerId = await getDealerId(req.user.userId);
     if (!dealerId) return res.status(404).json({ error: 'Dealer not found' });
 
-    await prisma.notification.updateMany({
-      where: { dealer_id: dealerId, is_read: false },
+    const notifId = Number(req.params.id);
+    
+    const notification = await prisma.notification.updateMany({
+      where: { id: notifId, dealer_id: dealerId },
       data: { is_read: true }
     });
 
