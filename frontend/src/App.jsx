@@ -51,9 +51,10 @@ function AppRoutes() {
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
           background: '#ef4444', color: 'white', padding: '8px 16px',
           display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16,
-          fontWeight: 600, fontSize: 14, boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          fontWeight: 600, fontSize: 14, boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          flexWrap: 'wrap', textAlign: 'center'
         }}>
-          ⚠️ You are currently impersonating dealer: {user.user?.username}
+          <span style={{ wordBreak: 'break-word' }}>⚠️ You are currently impersonating dealer: {user.user?.username}</span>
           <button 
             onClick={stopImpersonating}
             style={{ 
@@ -67,7 +68,7 @@ function AppRoutes() {
       )}
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginTop: isImpersonating ? 36 : 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginTop: isImpersonating ? 50 : 0 }}>
         {/* Mobile Header */}
         <header className="mobile-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

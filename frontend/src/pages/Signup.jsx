@@ -15,6 +15,8 @@ export default function Signup() {
     confirm_password: ''
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -91,11 +93,47 @@ export default function Signup() {
           <div className="form-row">
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label>Password *</label>
-              <input type="password" name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required minLength={6} />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  name="password" 
+                  placeholder="••••••••" 
+                  value={formData.password} 
+                  onChange={handleChange} 
+                  required 
+                  minLength={6} 
+                  style={{ width: '100%', paddingRight: '40px' }}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: '12px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: '18px', padding: 0 }}
+                >
+                  {showPassword ? '👁️' : '🙈'}
+                </button>
+              </div>
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label>Confirm Password *</label>
-              <input type="password" name="confirm_password" placeholder="••••••••" value={formData.confirm_password} onChange={handleChange} required minLength={6} />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input 
+                  type={showConfirmPassword ? "text" : "password"} 
+                  name="confirm_password" 
+                  placeholder="••••••••" 
+                  value={formData.confirm_password} 
+                  onChange={handleChange} 
+                  required 
+                  minLength={6} 
+                  style={{ width: '100%', paddingRight: '40px' }}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{ position: 'absolute', right: '12px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', fontSize: '18px', padding: 0 }}
+                >
+                  {showConfirmPassword ? '👁️' : '🙈'}
+                </button>
+              </div>
             </div>
           </div>
 
