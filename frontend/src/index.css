@@ -480,7 +480,7 @@ label {
 }
 
 input, select, textarea {
-  background: #ffffff;
+  background: var(--bg-secondary);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
@@ -492,6 +492,10 @@ input, select, textarea {
   width: 100%;
   max-width: 100%;
   text-overflow: ellipsis;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
 }
 
 select {
