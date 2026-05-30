@@ -34,6 +34,15 @@ export default function Orders() {
   const todayOrders = orders.filter(o => o.order_date === todayStr);
   const todayTotal = todayOrders.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
 
+  const filteredOrders = orders.filter(order => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      order.id.toString().includes(query) ||
+      (order.shop_name || '').toLowerCase().includes(query)
+    );
+  });
+
   return (
     <div className="fade-in">
       <div className="page-header">
@@ -110,38 +119,28 @@ export default function Orders() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {(() => {
-              const filteredOrders = orders.filter(order => {
-                if (!searchQuery.trim()) return true;
-                const query = searchQuery.toLowerCase();
-                return (
-                  order.id.toString().includes(query) ||
-                  (order.shop_name || '').toLowerCase().includes(query)
-                );
-              });
-              return filteredOrders.map(order => (
-                <div
-                  key={order.id}
-                  onClick={() => setSelected(order)}
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: 12, padding: '14px 18px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, transition: 'all 0.2s' }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.16)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--glass-border)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>
-                      <span style={{ color: 'var(--accent-light)' }}>#{order.id}</span> — {order.shop_name}
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                      📍 {order.location_name} &nbsp;•&nbsp; 📅 {order.order_date} &nbsp;•&nbsp; {order.items.length} item{order.items.length !== 1 ? 's' : ''}
-                    </div>
+            {filteredOrders.map(order => (
+              <div
+                key={order.id}
+                onClick={() => setSelected(order)}
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: 12, padding: '14px 18px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, transition: 'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.16)'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--glass-border)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+              >
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>
+                    <span style={{ color: 'var(--accent-light)' }}>#{order.id}</span> — {order.shop_name}
                   </div>
-                  <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--accent-light)', flexShrink: 0 }}>
-                    ₹{parseFloat(order.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                    📍 {order.location_name} &nbsp;•&nbsp; 📅 {order.order_date} &nbsp;•&nbsp; {order.items.length} item{order.items.length !== 1 ? 's' : ''}
                   </div>
-                  <span style={{ color: 'var(--text-muted)', fontSize: 18, flexShrink: 0 }}>›</span>
                 </div>
-              ));
-            })()}
+                <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--accent-light)', flexShrink: 0 }}>
+                  ₹{parseFloat(order.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+                <span style={{ color: 'var(--text-muted)', fontSize: 18, flexShrink: 0 }}>›</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
