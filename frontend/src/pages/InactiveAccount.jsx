@@ -2,7 +2,8 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function InactiveAccount() {
-  const { logout } = useAuth();
+  const { logout, stopImpersonating } = useAuth();
+  const isImpersonating = !!localStorage.getItem('adminToken');
 
   return (
     <div style={{
@@ -44,13 +45,23 @@ export default function InactiveAccount() {
           </a>
         </div>
 
-        <button 
-          onClick={logout}
-          className="btn btn-secondary"
-          style={{ width: '100%', justifyContent: 'center' }}
-        >
-          Logout
-        </button>
+        {isImpersonating ? (
+          <button 
+            onClick={stopImpersonating}
+            className="btn btn-primary"
+            style={{ width: '100%', justifyContent: 'center', background: '#ef4444', border: 'none' }}
+          >
+            Stop Impersonating & Go Back
+          </button>
+        ) : (
+          <button 
+            onClick={logout}
+            className="btn btn-secondary"
+            style={{ width: '100%', justifyContent: 'center' }}
+          >
+            Logout
+          </button>
+        )}
       </div>
     </div>
   );
